@@ -16,7 +16,6 @@ import java.util.List;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapterViewHolder> {
     private ArrayList<Movie> mMovieData;
-    private int itemsCount;
 
     /*
      * An on-click handler that we've defined to make it easy for an Activity to interface with
@@ -128,19 +127,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
     @Override
     public int getItemCount() {
         return mMovieData.size();
-    }
-
-    /**
-     * This method is used to set the movie list on a MovieAdapter if we've already
-     * created one. This is handy when we get new data from the web but don't want to create a
-     * new MovieAdapter to display it.
-     *
-     * @param movieDataList The new movie data to be displayed.
-     */
-    public void setData(List movieDataList) {
-        Log.v("MovieAdapter", "setting data");
-        //mMovieData = movieDataList;
-        notifyDataSetChanged();
     }
 }
 
