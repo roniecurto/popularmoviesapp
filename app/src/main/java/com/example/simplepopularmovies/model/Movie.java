@@ -1,71 +1,81 @@
 package com.example.simplepopularmovies.model;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.example.simplepopularmovies.constants.Constant;
+
 import java.util.Date;
 
+@Entity(tableName = "movies")
 public class Movie implements Parcelable {
-    int vote_count;
+    @PrimaryKey(autoGenerate = false)
     int id;
+    int vote_count;
     double vote_average;
     String title;
     double popularity;
     String poster_path;
     String original_language;
     String original_title;
-    int [] genre_ids;
-    String backdrop_path;
-    Boolean adult;
     String overview;
-    Date release_date;
+    String release_date;
+    Date updated_at;
 
-    /*
-        "vote_count": 194,
-        "id": 320288,
-        "video": false,
-        "vote_average": 6.3,
-        "title": "Dark Phoenix",
-        "popularity": 356.672,
-        "poster_path": "/kZv92eTc0Gg3mKxqjjDAM73z9cy.jpg",
-        "original_language": "en",
-        "original_title": "Dark Phoenix",
-        "genre_ids":[878,12,28],
-        "backdrop_path": "/phxiKFDvPeQj4AbkvJLmuZEieDU.jpg",
-        "adult": false,
-        "overview": "The X-Men face their most formidable and powerful foe when one of their own, Jean Grey, starts to spiral out of control. During a rescue mission in outer space, Jean is nearly killed when she's hit by a mysterious cosmic force. Once she returns home, this force not only makes her infinitely more powerful, but far more unstable. The X-Men must now band together to save her soul and battle aliens that want to use Grey's new abilities to rule the galaxy.",
-        "release_date": "2019-06-05"
-    */
-
+    @Ignore
     public Movie(
-            int vote_count,
             int id,
+            int vote_count,
             double vote_average,
             String title,
             double popularity,
             String poster_path,
             String original_language,
             String original_title,
-            int [] genre_ids,
-            String backdrop_path,
-            Boolean adult,
             String overview,
-            Date release_date
+            String release_date
     ) {
-        this.vote_count = vote_count;
         this.id = id;
+        this.vote_count = vote_count;
         this.vote_average = vote_average;
         this.title = title;
         this.popularity = popularity;
         this.poster_path = poster_path;
         this.original_language = original_language;
         this.original_title = original_title;
-        this.genre_ids = genre_ids;
-        this.backdrop_path = backdrop_path;
-        this.adult = adult;
         this.overview = overview;
         this.release_date = release_date;
     }
+
+    public Movie(
+            int id,
+            int vote_count,
+            double vote_average,
+            String title,
+            double popularity,
+            String poster_path,
+            String original_language,
+            String original_title,
+            String overview,
+            String release_date,
+            Date updated_at
+    ) {
+        this.id = id;
+        this.vote_count = vote_count;
+        this.vote_average = vote_average;
+        this.title = title;
+        this.popularity = popularity;
+        this.poster_path = poster_path;
+        this.original_language = original_language;
+        this.original_title = original_title;
+        this.overview = overview;
+        this.release_date = release_date;
+        this.updated_at = updated_at;
+    }
+
 
     private Movie(Parcel in){
         id = in.readInt();
@@ -73,6 +83,9 @@ public class Movie implements Parcelable {
         poster_path = in.readString();
         vote_average = in.readDouble();
         popularity = in.readDouble();
+        original_title = in.readString();
+        release_date = in.readString();
+        overview = in.readString();
     }
 
     @Override
@@ -80,28 +93,26 @@ public class Movie implements Parcelable {
         return 0;
     }
 
-    public String toString() { return this.title + "--" + this.poster_path + "--" + this.id; }
-
     public String getLinkMoviePoster(String imageSize){
-        String basePathURL = "http://image.tmdb.org/t/p/";
+        String basePathURL = Constant.MOVIE_POSTER_BASE_URL;
         //String [] imageAvailableSizes = {"w92", "w154", "w185", "w342", "w500", "w780", "original"};
         return basePathURL + imageSize + this.poster_path;
     }
 
-    public String getTitle(){
-        return this.title;
-    }
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(id);
         parcel.writeString(title);
         parcel.writeString(poster_path);
-        parcel.writeInt(id);
         parcel.writeDouble(vote_average);
         parcel.writeDouble(popularity);
+        parcel.writeString(original_title);
+        parcel.writeString(release_date);
+        parcel.writeString(overview);
     }
 
-    public final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
+    public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
         @Override
         public Movie createFromParcel(Parcel parcel) {
             return new Movie(parcel);
@@ -112,4 +123,31 @@ public class Movie implements Parcelable {
             return new Movie[i];
         }
     };
+
+
+    // Getters
+    public int getId(){ return id; }
+    public int getVoteCount(){ return vote_count; }
+    public Double getVoteAverage(){ return vote_average; }
+    public String getTitle(){ return title; }
+    public Double getPopularity(){ return popularity; }
+    public String getPosterPath(){ return poster_path; }
+    public String getOriginalLanguage(){ return original_language; }
+    public String getOriginalTitle(){ return original_title; }
+    public String getOverview(){ return overview; }
+    public String getReleaseDate(){ return release_date; }
+    public Date getUpdatedAt(){ return updated_at; }
+
+    //Setters
+    public void setId(int id){ this.id = id; }
+    public void setVoteCount(int vote_count){ this.vote_count = vote_count; }
+    public void setVoteAverage(Double vote_average){ this.vote_average = vote_average; }
+    public void setTitle(String title){ this.title = title; }
+    public void setPopularity(Double popularity){ this.popularity = popularity; }
+    public void setPosterPath(String poster_path){ this.poster_path = poster_path; }
+    public void setOriginalLanguage(String original_language){ this.original_language = original_language; }
+    public void setOriginalTitle(String original_title){ this.original_title = original_title; }
+    public void setReleaseDate(String release_date){ this.release_date = release_date; }
+    public void setUpdatedAt(Date updated_at){ this.updated_at = updated_at; }
+
 }

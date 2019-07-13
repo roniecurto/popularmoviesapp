@@ -23,13 +23,34 @@ public final class NetworkUtils {
         Uri builtUri = Uri.parse(givenURL).buildUpon()
                 .appendQueryParameter(KEY_PARAM, API_KEY)
                 .build();
-        URL url = null;
+
         try {
-            url = new URL(builtUri.toString());
+            return new URL(builtUri.toString());
         } catch (MalformedURLException e) {
             e.printStackTrace();
+            return null;
         }
-        return url;
+    }
+
+
+    /**
+     * Builds the URL.
+     *
+     * @param givenURL url to be parsed.
+     * @return The URL to use to query the moviedb server.
+     */
+    public static URL buildUrlAdditionalInfo(String givenURL, String movie_id, String infoType) {
+        Uri builtUri = Uri.parse(givenURL).buildUpon()
+            .appendPath(movie_id)
+            .appendPath(infoType)
+            .appendQueryParameter(KEY_PARAM, API_KEY)
+            .build();
+        try {
+            return new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**

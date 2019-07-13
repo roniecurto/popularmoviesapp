@@ -1,12 +1,22 @@
 package com.example.simplepopularmovies;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,24 +24,27 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.example.simplepopularmovies.adapters.MovieAdapter;
+import com.example.simplepopularmovies.constants.Constant;
+import com.example.simplepopularmovies.database.MovieDatabase;
 import com.example.simplepopularmovies.model.Movie;
+import com.example.simplepopularmovies.model.MovieViewModel;
 import com.example.simplepopularmovies.utils.JsonUtils;
 import com.example.simplepopularmovies.utils.NetworkUtils;
-
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
+public class MainActivity
+        extends AppCompatActivity
+        implements MovieAdapter.MovieAdapterOnClickHandler, LoaderManager.LoaderCallbacks<String> {
     private RecyclerView mRecyclerView;
     private MovieAdapter mMovieAdapter;
     private TextView mErrorMessageDisplay;
     private ProgressBar mLoadingIndicator;
-    private static final String MOVIE_BASE_LIST_URL = "http://api.themoviedb.org/3/movie/";
     private ArrayList movieList = new ArrayList<Movie>();
+    GridLayoutManager layoutManager;
+    int spanCount = 2;
+    private MovieDatabase movieDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,31 +53,52 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview);
         mErrorMessageDisplay = (TextView) findViewById(R.id.tv_error_message_display);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+
+
+        //checking device orientation
+        if(this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) spanCount = 4;
+
+        layoutManager = new GridLayoutManager(this, spanCount);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
         mMovieAdapter = new MovieAdapter(movieList, this);
         mRecyclerView.setAdapter(mMovieAdapter);
 
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
-        loadMovieData("popular");
 
+        //movieDatabase = MovieDatabase.getInstance(getApplicationContext());
+
+        loadMovieData(getString(R.string.key_sort_popular));
     }
+
 
     private void loadMovieData(String sortParam) {
         showDataView();
 
-        if(sortParam == "popular") getSupportActionBar().setTitle("Popular Movies");
-        if(sortParam == "top_rated") getSupportActionBar().setTitle("Top Rated Movies");
+        if(sortParam == getString(R.string.key_sort_popular) || sortParam == getString(R.string.key_sort_top_rated)){
+            if(sortParam == getString(R.string.key_sort_popular)) getSupportActionBar().setTitle(R.string.title_popular_movie);
+            if(sortParam == getString(R.string.key_sort_top_rated)) getSupportActionBar().setTitle(R.string.title_top_rated_movie);
 
-        String urlMovieList = getSearchMovieListURL(sortParam);
-        URL requestUrl = NetworkUtils.buildUrl(urlMovieList);
-        new FetchTask().execute(requestUrl);
+            setupAsyncTaskLoader(sortParam);
+        }else if(sortParam == getString(R.string.key_sort_favorites)){
+            getSupportActionBar().setTitle(R.string.title_top_favorite_movies);
+
+            setupFavoriteMoviesViewModel();
+        }
+
     }
 
     @Override
-    public void onClick(Movie movie) {
+    public void onClick(int itemClicked) {
         Context context = this;
+        Movie movieClicked = (Movie) movieList.get(itemClicked);
+
+        if(movieClicked != null) {
+            Class destinationClass = DetailActivity.class;
+            Intent intentToStartDetailActivity = new Intent(context, destinationClass);
+            intentToStartDetailActivity.putExtra(getString(R.string.intent_movie_selected), (Movie) movieClicked);
+            startActivity(intentToStartDetailActivity);
+        }
     }
 
     private void showDataView() {
@@ -78,49 +112,98 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     private String getSearchMovieListURL(String sortParam){
-        return MOVIE_BASE_LIST_URL + sortParam;
+        return Constant.MOVIE_BASE_LIST_URL + sortParam;
     }
 
-    public class FetchTask extends AsyncTask<URL, Void, String> {
+    private void setupAsyncTaskLoader(String sortParam){
+        String urlMovieList = getSearchMovieListURL(sortParam);
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mLoadingIndicator.setVisibility(View.VISIBLE);
-        }
+        Bundle queryBundle = new Bundle();
+        queryBundle.putString(Constant.SEARCH_QUERY_URL,urlMovieList.toString());
 
-        @Override
-        protected String doInBackground(URL... params) {
-            String jsonMovieResponse = null;
-            URL searchUrl = params[0];
+        LoaderManager loaderManager = getSupportLoaderManager();
+        Loader<String> movieListSearchLoader = loaderManager.getLoader(Constant.LOADER_MOVIE_LIST);
 
-
-            if (params.length == 0) return null;
-
-            try {
-                jsonMovieResponse = NetworkUtils.getResponseFromHttpUrl(searchUrl);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
-            return jsonMovieResponse;
-        }
-
-        @Override
-        protected void onPostExecute(String jsonMovieResponse) {
-            mLoadingIndicator.setVisibility(View.INVISIBLE);
-            if (jsonMovieResponse != null && !jsonMovieResponse.equals("")) {
-                Log.v("ASYNC_TASK", "data loaded");
-                movieList = (ArrayList) JsonUtils.parseMovieListJson(jsonMovieResponse);
-                //mMovieAdapter.setData(movieList);
-                mMovieAdapter.notifyDataSetChanged();
-                showDataView();
-            } else {
-                showErrorMessage();
-            }
+        if(movieListSearchLoader == null){
+            loaderManager.initLoader(Constant.LOADER_MOVIE_LIST, queryBundle, this);
+        }else{
+            loaderManager.restartLoader(Constant.LOADER_MOVIE_LIST, queryBundle, this);
         }
     }
 
+    private void setupFavoriteMoviesViewModel(){
+        MovieViewModel viewModel = ViewModelProviders.of(this).get(MovieViewModel.class);
+        viewModel.getMovies().observe(this, new Observer<ArrayList<Movie>>() {
+            @Override
+            public void onChanged(@Nullable ArrayList<Movie> movies) {
+                mLoadingIndicator.setVisibility(View.INVISIBLE);
+                mMovieAdapter.setData(movies);
+            }
+        });
+    }
+
+    @NonNull
+    @Override
+    public Loader<String> onCreateLoader(int i, @Nullable final Bundle bundle) {
+        return new AsyncTaskLoader<String>(this) {
+            String movieListRawJson;
+
+            @Override
+            protected void onStartLoading() {
+                super.onStartLoading();
+
+                if(bundle == null) return;
+
+                if(movieListRawJson != null){
+                    deliverResult(movieListRawJson);
+                }else{
+                    mLoadingIndicator.setVisibility(View.VISIBLE);
+                    forceLoad();
+                }
+            }
+
+            @Nullable
+            @Override
+            public String loadInBackground() {
+                String movieQueryUrlString = bundle.getString(Constant.SEARCH_QUERY_URL);
+
+                if(movieQueryUrlString == null || TextUtils.isEmpty(movieQueryUrlString)){
+                    return null;
+                }
+
+                try {
+                    URL searchUrl = NetworkUtils.buildUrl(movieQueryUrlString);
+                    return NetworkUtils.getResponseFromHttpUrl(searchUrl);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
+            @Override
+            public void deliverResult(@Nullable String data) {
+                movieListRawJson = data;
+                super.deliverResult(data);
+            }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<String> loader, String data) {
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        if (data != null && !data.equals("")) {
+            movieList = (ArrayList) JsonUtils.parseMovieListJson(data);
+            mMovieAdapter.setData(movieList);
+            showDataView();
+        } else {
+            showErrorMessage();
+        }
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<String> loader) {
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -130,13 +213,26 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        //outState.putParcelableArrayList(getString(R.string.key_parcelable_movie_list), movieList);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
         if (id == R.id.action_sort_rated) {
+            loadMovieData(getString(R.string.key_sort_top_rated));
             return true;
         }
         if (id == R.id.action_sort_popular) {
+            loadMovieData(getString(R.string.key_sort_popular));
+            return true;
+        }
+
+        if(id == R.id.action_sort_favorites){
+            loadMovieData(getString(R.string.key_sort_favorites));
             return true;
         }
 

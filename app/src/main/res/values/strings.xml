@@ -1,6 +1,35 @@
 <resources>
-    <string name="app_name">SimplePopularMovies</string>
-    <string name="action_sort_popular">Popular</string>
+    <string name="app_name">Popular Movies Stage 1</string>
+
+    <string name="error_message">Ops! Something went wrong.</string>
+
     <string name="action_sort">Sort</string>
+    <string name="action_sort_popular">Popular</string>
     <string name="action_sort_rated">Top Rated</string>
+    <string name="action_sort_favorites">Favorites</string>
+
+    <string name="title_popular_movie">Popular Movies</string>
+    <string name="title_top_rated_movie">Top Rated Movies</string>
+    <string name="title_top_favorite_movies">My Favorite Movies</string>
+
+    <string name="label_movie_title">Title</string>
+    <string name="label_movie_original_title">Original Title</string>
+    <string name="label_movie_release_date">Release Date</string>
+    <string name="label_movie_rating">Rating</string>
+    <string name="label_movie_overview">Plot Synopsis</string>
+    <string name="label_action_favorite">Add to Favorites</string>
+
+    <!-- key constants -->
+    <string name="intent_movie_selected">movieSelected</string>
+    <string name="key_sort_favorites">favorites</string>
+    <string name="key_sort_popular">popular</string>
+    <string name="key_sort_top_rated">top_rated</string>
+    <string name="key_parcelable_movie_list">movieList</string>
+
+    <!-- global constants -->
+    <string name="default_movie_poster_size">w342</string>
+    <string name="default_movie_list_poster_size">w500</string>
+    <string name="default_date_format">yyyy-MM-dd</string>
+    <string name="default_date_formatted">dd MMM yyyy</string>
+    <string name="default_movie_poster_base_url"></string>
 </resources>
