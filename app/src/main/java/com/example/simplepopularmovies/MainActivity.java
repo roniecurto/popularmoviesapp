@@ -44,7 +44,7 @@ public class MainActivity
     private ArrayList movieList = new ArrayList<Movie>();
     GridLayoutManager layoutManager;
     int spanCount = 2;
-    private MovieDatabase movieDatabase;
+    private MovieDatabase movieDatabase = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +65,6 @@ public class MainActivity
         mRecyclerView.setAdapter(mMovieAdapter);
 
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
-
-        //movieDatabase = MovieDatabase.getInstance(getApplicationContext());
 
         loadMovieData(getString(R.string.key_sort_popular));
     }
@@ -132,6 +130,10 @@ public class MainActivity
     }
 
     private void setupFavoriteMoviesViewModel(){
+        if(movieDatabase == null) {
+            movieDatabase = MovieDatabase.getInstance(getApplicationContext());
+        }
+
         MovieViewModel viewModel = ViewModelProviders.of(this).get(MovieViewModel.class);
         viewModel.getMovies().observe(this, new Observer<ArrayList<Movie>>() {
             @Override
