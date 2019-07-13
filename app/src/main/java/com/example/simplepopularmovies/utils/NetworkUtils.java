@@ -11,7 +11,7 @@ import java.util.Scanner;
 
 public final class NetworkUtils {
     private final static String KEY_PARAM = "api_key";
-    private final static String API_KEY = "default_key";
+    private final static String API_KEY = "change_api";
 
     /**
      * Builds the URL.

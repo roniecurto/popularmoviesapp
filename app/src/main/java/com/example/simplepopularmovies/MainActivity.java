@@ -44,7 +44,9 @@ public class MainActivity
     private ArrayList movieList = new ArrayList<Movie>();
     GridLayoutManager layoutManager;
     int spanCount = 2;
-    private MovieDatabase movieDatabase = null;
+    private MovieDatabase movieDatabase;
+    Boolean isMovieDatabaseSet = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,7 +132,7 @@ public class MainActivity
     }
 
     private void setupFavoriteMoviesViewModel(){
-        if(movieDatabase == null) {
+        if(!isMovieDatabaseSet) {
             movieDatabase = MovieDatabase.getInstance(getApplicationContext());
         }
 
@@ -142,6 +144,8 @@ public class MainActivity
                 mMovieAdapter.setData(movies);
             }
         });
+
+        isMovieDatabaseSet = true;
     }
 
     @NonNull
