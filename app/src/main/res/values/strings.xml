@@ -1,12 +1,21 @@
 <resources>
-    <string name="app_name">Popular Movies Stage 1</string>
+    <string name="app_name">Popular Movies</string>
 
     <string name="error_message">Ops! Something went wrong.</string>
 
-    <string name="action_sort">Sort</string>
-    <string name="action_sort_popular">Popular</string>
-    <string name="action_sort_rated">Top Rated</string>
-    <string name="action_sort_favorites">Favorites</string>
+    <string name="menu_action_settings">Settings</string>
+
+    <!-- Key name for sort preference in SharedPreferences -->
+    <string name="preference_sort_key" translatable="false">sort</string>
+    <string name="preference_sort_label">Sort</string>
+    <string name="preference_sort_default_option">popular</string>
+
+    <string name="action_sort_popular" translatable="false">Popular</string>
+    <string name="action_sort_rated" translatable="false">Top Rated</string>
+    <string name="action_sort_favorites" translatable="false">Favorites</string>
+    <string name="key_sort_favorites">favorites</string>
+    <string name="key_sort_popular">popular</string>
+    <string name="key_sort_top_rated">top_rated</string>
 
     <string name="title_popular_movie">Popular Movies</string>
     <string name="title_top_rated_movie">Top Rated Movies</string>
@@ -17,13 +26,15 @@
     <string name="label_movie_release_date">Release Date</string>
     <string name="label_movie_rating">Rating</string>
     <string name="label_movie_overview">Plot Synopsis</string>
+    <string name="label_movie_trailers">Trailers</string>
+    <string name="label_movie_reviews">Reviews</string>
+    <string name="label_action_watch_trailer">Watch Trailer</string>
     <string name="label_action_favorite">Add to Favorites</string>
+    <string name="label_action_unfavorite">Remove From Favorites</string>
+
 
     <!-- key constants -->
     <string name="intent_movie_selected">movieSelected</string>
-    <string name="key_sort_favorites">favorites</string>
-    <string name="key_sort_popular">popular</string>
-    <string name="key_sort_top_rated">top_rated</string>
     <string name="key_parcelable_movie_list">movieList</string>
 
     <!-- global constants -->

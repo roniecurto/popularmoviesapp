@@ -17,7 +17,10 @@ public class MovieTrailer {
         this.type = type;
     }
 
-/*
+    public String getName() { return this.name; }
+    public String getKey() { return this.key; }
+
+    /*
     http://api.themoviedb.org/3/movie/{movie_id}/videos?api_key=apikey
     {
         "id": "5c3deb71c3a36821623eaee4",

@@ -7,10 +7,11 @@ import com.example.simplepopularmovies.model.MovieTrailer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.ArrayList;
+import java.util.List;
 
 public class JsonUtils {
-    public static ArrayList parseMovieListJson(String json) {
-        ArrayList movieList = new ArrayList<Movie>();
+    public static List parseMovieListJson(String json) {
+        List<Movie> movieList = new ArrayList<Movie>();
         Movie movieObject;
         try {
             JSONObject movieListJson = new JSONObject(json);
@@ -38,15 +39,14 @@ public class JsonUtils {
             }
 
             return movieList;
-
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public static ArrayList parseMovieTrailersListJson(String json) {
-        ArrayList movieTrailerList = new ArrayList<MovieTrailer>();
+    public static List parseMovieTrailersListJson(String json) {
+        List<MovieTrailer> movieTrailerList = new ArrayList<MovieTrailer>();
         MovieTrailer movieTrailerObject;
         try {
             JSONObject movieTrailerListJson = new JSONObject(json);
@@ -71,16 +71,14 @@ public class JsonUtils {
             }
 
             return movieTrailerList;
-
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
-
     }
 
-    public static ArrayList parseMovieReviewsListJson(String json) {
-        ArrayList movieReviewList = new ArrayList<MovieReview>();
+    public static List parseMovieReviewsListJson(String json) {
+        List<MovieReview> movieReviewList = new ArrayList<MovieReview>();
         MovieReview movieReviewObject;
         try {
             JSONObject movieReviewListJson = new JSONObject(json);
@@ -92,7 +90,7 @@ public class JsonUtils {
                     movieReview = movieReviews.getJSONObject(i);
 
                     movieReviewObject = new MovieReview(
-                            movieReview.getInt("id"),
+                            movieReview.getString("id"),
                             movieReview.getString("author"),
                             movieReview.getString("content"),
                             movieReview.getString("url")
@@ -103,7 +101,6 @@ public class JsonUtils {
             }
 
             return movieReviewList;
-
         } catch (Exception e) {
             e.printStackTrace();
             return null;

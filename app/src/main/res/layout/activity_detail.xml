@@ -113,13 +113,41 @@
             <Button
                 android:layout_marginLeft="10sp"
                 android:padding="10sp"
-                android:background="#009999"
-                android:textColor="#ffffff"
+                android:background="@color/colorPrimary"
+                android:textColor="@color/white"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/favorite_button"
                 android:text="@string/label_action_favorite"/>
-
+            <TextView
+                android:layout_marginTop="20sp"
+                android:textColor="@color/labels"
+                android:text="@string/label_movie_trailers"
+                android:layout_marginRight="10sp"
+                android:layout_marginLeft="10sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/label_movie_trailers"/>
+            <android.support.v7.widget.RecyclerView
+                android:layout_marginRight="10sp"
+                android:layout_marginLeft="10sp"
+                android:id="@+id/recyclerview_trailers"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:textColor="@color/labels"
+                android:layout_marginRight="10sp"
+                android:layout_marginLeft="10sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/label_movie_reviews"
+                android:text="@string/label_movie_reviews"/>
+            <android.support.v7.widget.RecyclerView
+                android:layout_marginRight="10sp"
+                android:layout_marginLeft="10sp"
+                android:id="@+id/recyclerview_reviews"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

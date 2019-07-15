@@ -13,17 +13,17 @@ import java.util.Date;
 @Entity(tableName = "movies")
 public class Movie implements Parcelable {
     @PrimaryKey(autoGenerate = false)
-    int id;
-    int vote_count;
-    double vote_average;
-    String title;
-    double popularity;
-    String poster_path;
-    String original_language;
-    String original_title;
-    String overview;
-    String release_date;
-    Date updated_at;
+    public int id;
+    public int vote_count;
+    public double vote_average;
+    public String title;
+    public double popularity;
+    public String poster_path;
+    public String original_language;
+    public String original_title;
+    public String overview;
+    public String release_date;
+    public Date updated_at;
 
     @Ignore
     public Movie(

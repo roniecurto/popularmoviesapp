@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="preference_sort_option_labels">
+        <item>@string/action_sort_popular</item>
+        <item>@string/action_sort_rated</item>
+        <item>@string/action_sort_favorites</item>
+    </array>
+
+    <array name="preference_sort_option_values">
+        <item>@string/key_sort_popular</item>
+        <item>@string/key_sort_top_rated</item>
+        <item>@string/key_sort_favorites</item>
+    </array>
+</resources>

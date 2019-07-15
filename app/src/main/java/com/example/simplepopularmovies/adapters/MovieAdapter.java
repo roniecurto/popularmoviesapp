@@ -13,9 +13,10 @@ import com.example.simplepopularmovies.model.Movie;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapterViewHolder> {
-    private ArrayList<Movie> mMovieData;
+    private List<Movie> mMovieData;
 
     /*
      * An on-click handler that we've defined to make it easy for an Activity to interface with
@@ -39,7 +40,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
      * @param clickHandler The on-click handler for this adapter. This single handler is called
      *                     when an item is clicked.
      */
-    public MovieAdapter(ArrayList<Movie> movieItems, MovieAdapterOnClickHandler clickHandler) {
+    public MovieAdapter(List<Movie> movieItems, MovieAdapterOnClickHandler clickHandler) {
         mClickHandler = clickHandler;
         this.mMovieData = movieItems;
     }
@@ -121,7 +122,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
         return mMovieData.size();
     }
 
-    public void setData(ArrayList movieList){
+    public void setData(List movieList){
         mMovieData = movieList;
         notifyDataSetChanged();
     }

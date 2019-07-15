@@ -1,17 +1,21 @@
 package com.example.simplepopularmovies.model;
 
 public class MovieReview {
-    private int id;
+    private String id;
     private String author;
     private String content;
     private String url;
 
-    public MovieReview(int id, String author, String content, String url){
+    public MovieReview(String id, String author, String content, String url){
         this.id = id;
         this.author = author;
         this.content = content;
         this.url = url;
     }
+
+    public String getAuthor(){ return this.author; }
+    public String getContent(){ return this.content; }
+
 /*
     http://api.themoviedb.org/3/movie/{movie_id}/reviews?api_key=apikey
     {

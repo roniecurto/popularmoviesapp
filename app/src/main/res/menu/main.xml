@@ -5,24 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
     <item
-        android:title="@string/action_sort"
+        android:id="@+id/action_settings"
+        android:title="@string/menu_action_settings"
         app:showAsAction="ifRoom">
-        <menu>
-            <item
-                android:id="@+id/action_sort_popular"
-                android:orderInCategory="1"
-                android:title="@string/action_sort_popular"
-                app:showAsAction="ifRoom"/>
-            <item
-                android:id="@+id/action_sort_rated"
-                android:orderInCategory="2"
-                android:title="@string/action_sort_rated"
-                app:showAsAction="ifRoom"/>
-            <item
-                android:id="@+id/action_sort_favorites"
-                android:orderInCategory="3"
-                android:title="@string/action_sort_favorites"
-                app:showAsAction="ifRoom"/>
-        </menu>
     </item>
 </menu>

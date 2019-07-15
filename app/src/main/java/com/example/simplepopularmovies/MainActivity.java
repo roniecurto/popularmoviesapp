@@ -1,12 +1,11 @@
 package com.example.simplepopularmovies;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
@@ -14,6 +13,7 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -28,20 +28,25 @@ import com.example.simplepopularmovies.adapters.MovieAdapter;
 import com.example.simplepopularmovies.constants.Constant;
 import com.example.simplepopularmovies.database.MovieDatabase;
 import com.example.simplepopularmovies.model.Movie;
-import com.example.simplepopularmovies.model.MovieViewModel;
+import com.example.simplepopularmovies.model.viewmodels.MovieViewModel;
 import com.example.simplepopularmovies.utils.JsonUtils;
 import com.example.simplepopularmovies.utils.NetworkUtils;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity
         extends AppCompatActivity
-        implements MovieAdapter.MovieAdapterOnClickHandler, LoaderManager.LoaderCallbacks<String> {
+        implements
+            MovieAdapter.MovieAdapterOnClickHandler,
+            LoaderManager.LoaderCallbacks<String>,
+            SharedPreferences.OnSharedPreferenceChangeListener
+{
     private RecyclerView mRecyclerView;
     private MovieAdapter mMovieAdapter;
     private TextView mErrorMessageDisplay;
     private ProgressBar mLoadingIndicator;
-    private ArrayList movieList = new ArrayList<Movie>();
+    private List movieList = new ArrayList<Movie>();
     GridLayoutManager layoutManager;
     int spanCount = 2;
     private MovieDatabase movieDatabase;
@@ -55,7 +60,7 @@ public class MainActivity
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview);
         mErrorMessageDisplay = (TextView) findViewById(R.id.tv_error_message_display);
-
+        mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
 
         //checking device orientation
         if(this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) spanCount = 4;
@@ -66,26 +71,24 @@ public class MainActivity
         mMovieAdapter = new MovieAdapter(movieList, this);
         mRecyclerView.setAdapter(mMovieAdapter);
 
-        mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
-
-        loadMovieData(getString(R.string.key_sort_popular));
+        setupSharedPreferences();
     }
 
 
-    private void loadMovieData(String sortParam) {
+    private void loadMovieData(SharedPreferences sharedPreferences) {
+        String settingSortPreference = sharedPreferences.getString(getString(R.string.preference_sort_key), getString(R.string.preference_sort_default_option));
         showDataView();
 
-        if(sortParam == getString(R.string.key_sort_popular) || sortParam == getString(R.string.key_sort_top_rated)){
-            if(sortParam == getString(R.string.key_sort_popular)) getSupportActionBar().setTitle(R.string.title_popular_movie);
-            if(sortParam == getString(R.string.key_sort_top_rated)) getSupportActionBar().setTitle(R.string.title_top_rated_movie);
-
-            setupAsyncTaskLoader(sortParam);
-        }else if(sortParam == getString(R.string.key_sort_favorites)){
+        if(settingSortPreference.equals(getString(R.string.key_sort_popular)) ||
+            settingSortPreference.equals(getString(R.string.key_sort_top_rated)))
+        {
+            if(settingSortPreference.equals(getString(R.string.key_sort_popular))) getSupportActionBar().setTitle(R.string.title_popular_movie);
+            if(settingSortPreference.equals(getString(R.string.key_sort_top_rated))) getSupportActionBar().setTitle(R.string.title_top_rated_movie);
+            setupAsyncTaskLoader(settingSortPreference);
+        }else if(settingSortPreference.equals(getString(R.string.key_sort_favorites))){
             getSupportActionBar().setTitle(R.string.title_top_favorite_movies);
-
             setupFavoriteMoviesViewModel();
         }
-
     }
 
     @Override
@@ -137,10 +140,11 @@ public class MainActivity
         }
 
         MovieViewModel viewModel = ViewModelProviders.of(this).get(MovieViewModel.class);
-        viewModel.getMovies().observe(this, new Observer<ArrayList<Movie>>() {
+        viewModel.getMovies().observe(this, new Observer<List<Movie>>() {
             @Override
-            public void onChanged(@Nullable ArrayList<Movie> movies) {
+            public void onChanged(@Nullable List<Movie> movies) {
                 mLoadingIndicator.setVisibility(View.INVISIBLE);
+                movieList = movies;
                 mMovieAdapter.setData(movies);
             }
         });
@@ -198,7 +202,7 @@ public class MainActivity
     public void onLoadFinished(@NonNull Loader<String> loader, String data) {
         mLoadingIndicator.setVisibility(View.INVISIBLE);
         if (data != null && !data.equals("")) {
-            movieList = (ArrayList) JsonUtils.parseMovieListJson(data);
+            movieList = (List) JsonUtils.parseMovieListJson(data);
             mMovieAdapter.setData(movieList);
             showDataView();
         } else {
@@ -228,20 +232,33 @@ public class MainActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_sort_rated) {
-            loadMovieData(getString(R.string.key_sort_top_rated));
-            return true;
-        }
-        if (id == R.id.action_sort_popular) {
-            loadMovieData(getString(R.string.key_sort_popular));
-            return true;
-        }
-
-        if(id == R.id.action_sort_favorites){
-            loadMovieData(getString(R.string.key_sort_favorites));
+        if (id == R.id.action_settings) {
+            Intent startSettingsActivity = new Intent(this, SettingsActivity.class);
+            startActivity(startSettingsActivity);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setupSharedPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        loadMovieData(sharedPreferences);
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+    }
+
+    // Updates the screen if the shared preferences change. This method is required when you make a
+    // class implement OnSharedPreferenceChangedListener
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(getString(R.string.preference_sort_key))) {
+            loadMovieData(sharedPreferences);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
     }
 }

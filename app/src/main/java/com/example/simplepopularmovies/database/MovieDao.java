@@ -8,13 +8,13 @@ import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
 import com.example.simplepopularmovies.model.Movie;
-import java.util.ArrayList;
+import java.util.List;
 
 @Dao
 public interface MovieDao {
 
     @Query("SELECT * FROM movies ORDER BY title")
-    LiveData<ArrayList<Movie>> loadAllMovies();
+    LiveData<List<Movie>> loadAllMovies();
 
     @Insert
     void insertMovie(Movie movie);
